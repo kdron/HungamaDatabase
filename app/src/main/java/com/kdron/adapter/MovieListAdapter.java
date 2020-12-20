@@ -19,6 +19,7 @@ import com.kdron.models.MovieDetail;
 import com.kdron.network.ConnectionUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Holder> {
     private Context context;
@@ -83,5 +84,13 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Hold
 
         }
     }
+    public void updateList(ArrayList<MovieDetail> list){
+        listMovies = list;
+        notifyDataSetChanged();
+    }
+
+
+
+
 }
 
