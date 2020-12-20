@@ -26,6 +26,8 @@ public class ConnectionUtil {
     public static String API = "09de4b6e14ed091cb0472e5afaaf3caf";
     public static String MOVIE_LIST = BASE_URL+"/movie/now_playing";
     public static String IMG_URL = "https://image.tmdb.org/t/p/w500/";
+    public static String MOVIE_DETAILS = BASE_URL+"/movie";
+    public static String CREDITS = BASE_URL+"/credits";
 
 
 

@@ -1,8 +1,9 @@
 package com.kdron.models;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MovieDetail {
+public class MovieDetail implements Serializable {
 
     public boolean adult;
     public String backdrop_path;

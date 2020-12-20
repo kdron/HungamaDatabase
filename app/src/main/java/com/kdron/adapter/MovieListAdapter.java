@@ -1,6 +1,7 @@
 package com.kdron.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +11,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.kdron.hungamadatabase.MovieDetailActivity;
 import com.kdron.hungamadatabase.R;
 import com.kdron.models.MovieDetail;
 import com.kdron.network.ConnectionUtil;
@@ -49,13 +52,24 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Hold
         holder.txtReleaseDate.setText(listMovies.get(position).release_date);
         holder.txtInfo.setText("Popularity "+listMovies.get(position).popularity);
 
-        Log.d("1111111", "onBindViewHolder: "+ConnectionUtil.IMG_URL+listMovies.get(position).poster_path);
         Glide.with(context).
                 load(ConnectionUtil.IMG_URL+listMovies.get(position).poster_path)
                 .placeholder(R.drawable.ic_place_holder)
                 .dontAnimate()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imgPoster);
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(context, MovieDetailActivity.class);
+                intent.putExtra(MovieDetailActivity.INTENT_MOVIE_DETAILS,listMovies.get(position));
+                context.startActivity(intent);
+
+            }
+        });
+
+
 
     }
 
