@@ -29,6 +29,11 @@ public class ConnectionUtil {
     public static String MOVIE_DETAILS = BASE_URL+"/movie";
 
 
+
+
+    private static final String TAG = ConnectionUtil.class.getSimpleName();
+
+
     public static StringRequest callVolleyGetRequest(final String urlString, Context context, final VollyResponse vollyResponse) {
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlString, new Response.Listener<String>() {
@@ -55,13 +60,38 @@ public class ConnectionUtil {
             }
         };
 
-        Volley.newRequestQueue(context).add(stringRequest);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(50000
-                , 5
-                , DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        if(isInternetAvailable((Activity) context))
+        {
+            Volley.newRequestQueue(context).add(stringRequest);
+            stringRequest.setRetryPolicy(new DefaultRetryPolicy(50000
+                    , 5
+                    , DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        }else
+        {
+            vollyResponse.onNoInternet();
+        }
+
 
         return stringRequest;
     }
 
+    public static boolean isInternetAvailable(Activity a) {
+        ConnectivityManager cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni == null) {
+            // UIUtil.showToastRed(a, "Check Internet");
+            Toast.makeText(a, "Check Internet", Toast.LENGTH_LONG).show();
 
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean isInternetAvailableNoToast(Context c) {
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null;
+    }
 }

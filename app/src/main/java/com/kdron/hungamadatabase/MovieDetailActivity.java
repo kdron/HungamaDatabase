@@ -179,19 +179,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                         JSONObject jsonObjectCast = jsonArrayCast.getJSONObject(i);
                         Items items = new Items();
 
-
-//                        cast.adult = jsonObjectCast.getBoolean("adult");
-//                        cast.gender = jsonObjectCast.getInt("gender");
                         items.id = jsonObjectCast.getInt("id");
-//                        cast.known_for_department = jsonObjectCast.getString("known_for_department");
                         items.name = jsonObjectCast.getString("name");
-//                        cast.original_name = jsonObjectCast.getString("original_name");
-//                        cast.popularity = jsonObjectCast.getDouble("popularity");
                         items.poster = jsonObjectCast.getString("profile_path");
-//                        cast.cast_id = jsonObjectCast.getInt("cast_id");
-//                        cast.character = jsonObjectCast.getString("character");
-//                        cast.credit_id = jsonObjectCast.getString("credit_id");
-//                        cast.order = jsonObjectCast.getInt("order");
+
 
 
                         //temp  fix

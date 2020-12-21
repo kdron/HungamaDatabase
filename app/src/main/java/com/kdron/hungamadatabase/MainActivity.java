@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     ImageView iv;
     Context context = this;
-    public static final String TAG = MainActivity.class.getName();
     ArrayList<MovieDetail> listMovie = new ArrayList<>();
     MovieListAdapter movieListAdapter;
 
@@ -48,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
         sv = findViewById(R.id.sb);
         rv = findViewById(R.id.rv);
         iv = findViewById(R.id.iv);
+
         setProgressDialog();
-
-
+        setSearchView();
         getMovieList();
 
+    }
+
+    private void setSearchView() {
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -65,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(newText)) {
                     ArrayList<MovieDetail> filteredList = new ArrayList();
                     for (MovieDetail md : listMovie) {
-                        //or use .equal(text) with you want equal match
-                        //use .toLowerCase() for better matches
+
                         if (MovieSeachFilter.isMovieMatch(newText,md.title)) {
                             filteredList.add(md);
                         }
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }else
                 {
+                    //reset recyclerview
                     if (movieListAdapter != null) {
                         movieListAdapter.updateList(listMovie);
                     }
@@ -87,11 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-
     }
-
-
 
 
     private void setProgressDialog() {

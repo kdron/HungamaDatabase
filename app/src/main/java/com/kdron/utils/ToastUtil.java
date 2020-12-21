@@ -21,17 +21,7 @@ public class ToastUtil {
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
-
-    public static void toastCenterLong(Context context, String message){
-        Toast toast = Toast.makeText(context,message, Toast.LENGTH_LONG);
-        View view = toast.getView();
-        view.getBackground().setColorFilter(context.getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
-        TextView text = view.findViewById(android.R.id.message);
-        text.setTextColor(context.getResources().getColor(R.color.white));
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
-    }
-
+    
 }
 
 
