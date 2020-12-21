@@ -27,60 +27,7 @@ public class ConnectionUtil {
     public static String MOVIE_LIST = BASE_URL+"/movie/now_playing";
     public static String IMG_URL = "https://image.tmdb.org/t/p/w500/";
     public static String MOVIE_DETAILS = BASE_URL+"/movie";
-    public static String CREDITS = BASE_URL+"/credits";
 
-
-
-
-    private static final String TAG = ConnectionUtil.class.getSimpleName();
-
-
-    public static StringRequest callVolleyPostRequest(final String urlString, final Map<String, String> hashMap, final Context context, final VollyResponse vollyResponse) {
-
-        Log.d(TAG, "callVolleyPostRequest: " + Arrays.toString(hashMap.entrySet().toArray()));
-        Log.d(TAG, "callVolleyPostRequest: " + urlString);
-
-
-        if (!ConnectionUtil.isInternetAvailableNoToast(context)) {
-            vollyResponse.onNoInternet();
-            return null;
-        } else {
-
-            final StringRequest stringRequest = new StringRequest(Request.Method.POST, urlString, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.d(TAG, "onResponse: " + response);
-                    vollyResponse.onReceive(response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    vollyResponse.onError();
-                }
-            }) {
-                @Override
-                protected Map<String, String> getParams() {
-                    return hashMap;
-                }
-
-                @Override
-                public Map<String, String> getHeaders() {
-                    return new HashMap<>();
-                }
-            };
-
-            Volley.newRequestQueue(context).add(stringRequest);
-            return stringRequest;
-        }
-
-
-    }
-
-
-    public StringRequest cancelVolleyRequest(StringRequest stringRequest) {
-
-        return stringRequest;
-    }
 
     public static StringRequest callVolleyGetRequest(final String urlString, Context context, final VollyResponse vollyResponse) {
 
@@ -116,22 +63,5 @@ public class ConnectionUtil {
         return stringRequest;
     }
 
-    public static boolean isInternetAvailable(Activity a) {
-        ConnectivityManager cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        if (ni == null) {
-            // UIUtil.showToastRed(a, "Check Internet");
-            Toast.makeText(a, "Check Internet", Toast.LENGTH_LONG).show();
 
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public static boolean isInternetAvailableNoToast(Context c) {
-        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        return ni != null;
-    }
 }

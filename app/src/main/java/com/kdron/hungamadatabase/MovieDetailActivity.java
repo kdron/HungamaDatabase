@@ -1,21 +1,21 @@
 package com.kdron.hungamadatabase;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.kdron.adapter.ItemListAdapter;
-import com.kdron.adapter.MovieListAdapter;
-import com.kdron.models.Cast;
-import com.kdron.models.Crew;
 import com.kdron.models.Items;
 import com.kdron.models.MovieDetail;
 import com.kdron.network.ConnectionUtil;
@@ -43,7 +43,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     androidx.recyclerview.widget.RecyclerView rv_similar_movies;
     ProgressBar progressMovies;
 
-    MovieDetail movieDetail ;
+    MovieDetail movieDetail;
     ProgressDialog progressDialog;
     Context context = this;
 
@@ -52,6 +52,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     ArrayList<Items> listCast = new ArrayList<>();
     ArrayList<Items> listCrew = new ArrayList<>();
     ArrayList<Items> listSimilarMovies = new ArrayList<>();
+    ImageView imgYoutube;
 
 
     @Override
@@ -63,36 +64,42 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieDetail = (MovieDetail) getIntent().getSerializableExtra(INTENT_MOVIE_DETAILS);
         setProgressDialog();
 
-        imagePoster =  findViewById(R.id.image_poster);
-        txtMovieName =  findViewById(R.id.txt_movie_name);
-        txtLanguage =  findViewById(R.id.txtLanguage);
-        txtGenre =  findViewById(R.id.txtGenre);
-        txtDetails =  findViewById(R.id.txtDetails);
-        rvCast =  findViewById(R.id.rvCast);
-        progressCast =  findViewById(R.id.progressCast);
-        rv_crew =  findViewById(R.id.rv_crew);
-        progressCrew =  findViewById(R.id.progressCrew);
-        rv_similar_movies =  findViewById(R.id.rv_similar_movies);
-        progressMovies =  findViewById(R.id.progressMovies);
+        imagePoster = findViewById(R.id.image_poster);
+        txtMovieName = findViewById(R.id.txt_movie_name);
+        txtLanguage = findViewById(R.id.txtLanguage);
+        txtGenre = findViewById(R.id.txtGenre);
+        txtDetails = findViewById(R.id.txtDetails);
+        rvCast = findViewById(R.id.rvCast);
+        progressCast = findViewById(R.id.progressCast);
+        rv_crew = findViewById(R.id.rv_crew);
+        progressCrew = findViewById(R.id.progressCrew);
+        rv_similar_movies = findViewById(R.id.rv_similar_movies);
+        progressMovies = findViewById(R.id.progressMovies);
+        imgYoutube = findViewById(R.id.imgYoutube);
 
 
         txtMovieName.setText(movieDetail.title);
         txtDetails.setText(movieDetail.overview);
-       // txtLanguage.setText(movieDetail.original_language);
-        //txtGenre.setText(movieDetail.ge);
-
 
 
 
         getMovieDetails();
         getCastDetails();
         getSimilarMovies();
+        getVideoDetail();
+
+        Glide.with(context).
+                load(ConnectionUtil.IMG_URL + movieDetail.poster_path)
+                .placeholder(R.drawable.ic_place_holder)
+                .dontAnimate()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(imagePoster);
     }
 
     private void getMovieDetails() {
         showProgress();
 
-        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS+"/"+movieDetail.id + "?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
+        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS + "/" + movieDetail.id + "?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
             @Override
             public void onReceive(String response) {
                 try {
@@ -101,26 +108,24 @@ public class MovieDetailActivity extends AppCompatActivity {
 
                     JSONArray jsonArray = jsonObject.getJSONArray("genres");
                     String geners = "";
-                    for (int i = 0; i <jsonArray.length() ; i++) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
 
-                        JSONObject jsonObjectGeners  = jsonArray.getJSONObject(i);
-                        geners = geners+jsonObjectGeners.getString("name");
-                        if(i<jsonArray.length())
-                        {
-                            geners = geners+",";
+                        JSONObject jsonObjectGeners = jsonArray.getJSONObject(i);
+                        geners = geners + jsonObjectGeners.getString("name");
+                        if (i < jsonArray.length()) {
+                            geners = geners + ",";
                         }
                     }
                     txtGenre.setText(geners);
 
-                    JSONArray jsonArrayLanguage  = jsonObject.getJSONArray("spoken_languages");
+                    JSONArray jsonArrayLanguage = jsonObject.getJSONArray("spoken_languages");
                     String language = "";
-                    for (int i = 0; i <jsonArrayLanguage.length() ; i++) {
+                    for (int i = 0; i < jsonArrayLanguage.length(); i++) {
                         JSONObject jsonObjectLanguage = jsonArrayLanguage.getJSONObject(i);
-                         language  = jsonObjectLanguage.getString("english_name");
+                        language = jsonObjectLanguage.getString("english_name");
 
-                        if(i<jsonArrayLanguage.length())
-                        {
-                            language = language+",";
+                        if (i < jsonArrayLanguage.length()) {
+                            language = language + ",";
                         }
                     }
 
@@ -156,25 +161,23 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private void getCastDetails() {
 
-            progressCast.setVisibility(View.VISIBLE);
-            progressCrew.setVisibility(View.VISIBLE);
+        progressCast.setVisibility(View.VISIBLE);
+        progressCrew.setVisibility(View.VISIBLE);
 
-        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS+"/"+movieDetail.id + "/credits?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
+        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS + "/" + movieDetail.id + "/credits?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
             @Override
             public void onReceive(String response) {
                 try {
                     JSONObject jsonObject = new JSONObject(response);
 
 
-
                     JSONArray jsonArrayCast = jsonObject.getJSONArray("cast");
                     JSONArray jsonArrayCrew = jsonObject.getJSONArray("crew");
 
                     listCast.clear();
-                    for (int i = 0; i <jsonArrayCast.length() ; i++) {
+                    for (int i = 0; i < jsonArrayCast.length(); i++) {
                         JSONObject jsonObjectCast = jsonArrayCast.getJSONObject(i);
                         Items items = new Items();
-
 
 
 //                        cast.adult = jsonObjectCast.getBoolean("adult");
@@ -191,19 +194,16 @@ public class MovieDetailActivity extends AppCompatActivity {
 //                        cast.order = jsonObjectCast.getInt("order");
 
 
-
                         //temp  fix
                         boolean isPresent = false;
                         for (int j = 0; j < listCast.size(); j++) {
 
-                            if(listCast.get(j).id == items.id)
-                            {
+                            if (listCast.get(j).id == items.id) {
                                 isPresent = true;
                             }
                         }
 
-                        if(!isPresent)
-                        {
+                        if (!isPresent) {
                             listCast.add(items);
                         }
 
@@ -211,52 +211,39 @@ public class MovieDetailActivity extends AppCompatActivity {
 
                     listCrew.clear();
 
-                    for (int i = 0; i <jsonArrayCrew.length() ; i++) {
+                    for (int i = 0; i < jsonArrayCrew.length(); i++) {
                         JSONObject jsonObjectCrew = jsonArrayCrew.getJSONObject(i);
                         Items items = new Items();
-
-//                        crew.adult = jsonObjectCrew.getBoolean("adult");
-//                        crew.gender = jsonObjectCrew.getInt("gender");
-//                        crew.id = jsonObjectCrew.getInt("id");
-//                        crew.known_for_department = jsonObjectCrew.getString("known_for_department");
                         items.name = jsonObjectCrew.getString("name");
-//                        crew.popularity = jsonObjectCrew.getInt("popularity");
                         items.poster = jsonObjectCrew.getString("profile_path");
-//                        crew.credit_id = jsonObjectCrew.getString("credit_id");
-//                        crew.department = jsonObjectCrew.getString("department");
-//                        crew.job = jsonObjectCrew.getString("job");
-
 
                         //temp  fix
                         boolean isPresent = false;
                         for (int j = 0; j < listCrew.size(); j++) {
 
-                            if(listCrew.get(j).id == items.id)
-                            {
+                            if (listCrew.get(j).id == items.id) {
                                 isPresent = true;
                             }
                         }
 
-                        if(!isPresent)
-                        {
+                        if (!isPresent) {
                             listCrew.add(items);
                         }
 
 
-                      //  listCrew.add(items);
+                        //  listCrew.add(items);
 
                     }
 
 
-                    rvCast.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
+                    rvCast.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
                     ItemListAdapter itemListAdapterCast = new ItemListAdapter(listCast, context);
                     rvCast.setAdapter(itemListAdapterCast);
 
 
-                    rv_crew.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
+                    rv_crew.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
                     ItemListAdapter itemListAdapterCrew = new ItemListAdapter(listCrew, context);
                     rv_crew.setAdapter(itemListAdapterCrew);
-
 
 
                 } catch (JSONException e) {
@@ -292,20 +279,18 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         progressMovies.setVisibility(View.VISIBLE);
 
-        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS+"/"+movieDetail.id + "/similar?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
+        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS + "/" + movieDetail.id + "/similar?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
             @Override
             public void onReceive(String response) {
                 try {
                     JSONObject jsonObject = new JSONObject(response);
-
-                    Log.d(TAG, "onReceive: "+jsonObject);
 
 
                     JSONArray jsonArray = jsonObject.getJSONArray("results");
 
 
                     listSimilarMovies.clear();
-                    for (int i = 0; i <jsonArray.length() ; i++) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObjectCast = jsonArray.getJSONObject(i);
                         Items items = new Items();
 
@@ -313,15 +298,14 @@ public class MovieDetailActivity extends AppCompatActivity {
                         items.name = jsonObjectCast.getString("title");
                         items.poster = jsonObjectCast.getString("poster_path");
 
-                            listSimilarMovies.add(items);
+                        listSimilarMovies.add(items);
 
                     }
 
 
-                    rv_similar_movies.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
+                    rv_similar_movies.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
                     ItemListAdapter itemListAdapterCrew = new ItemListAdapter(listSimilarMovies, context);
                     rv_similar_movies.setAdapter(itemListAdapterCrew);
-
 
 
                 } catch (JSONException e) {
@@ -350,6 +334,63 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void getVideoDetail() {
+
+
+        ConnectionUtil.callVolleyGetRequest(ConnectionUtil.MOVIE_DETAILS + "/" + movieDetail.id + "/videos?api_key=" + ConnectionUtil.API, context, new VollyResponse() {
+            @Override
+            public void onReceive(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+
+                    JSONArray jsonArray = jsonObject.getJSONArray("results");
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObjectVideo = jsonArray.getJSONObject(i);
+                        String site = jsonObjectVideo.getString("site");
+
+                        if (site.equalsIgnoreCase("youtube")) {
+
+                            String key = jsonObjectVideo.getString("key");
+
+                            imgYoutube.setVisibility(View.VISIBLE);
+                            imagePoster.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + key)));
+
+                                }
+                            });
+
+                        }
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    ToastUtil.toastCenterShort(context, context.getResources().getString(R.string.errorMsg));
+                }
+                progressMovies.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onError() {
+                ToastUtil.toastCenterShort(context, context.getResources().getString(R.string.errorMsg));
+
+
+            }
+
+            @Override
+            public void onNoInternet() {
+                ToastUtil.toastCenterShort(context, context.getResources().getString(R.string.noInternate));
+
+
+            }
+        });
+    }
+
     private void setProgressDialog() {
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Please wait");
@@ -369,11 +410,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
     }
-
-
-
-
-
 
 
 }

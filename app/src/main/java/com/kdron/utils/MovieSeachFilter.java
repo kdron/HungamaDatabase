@@ -4,10 +4,7 @@ public class MovieSeachFilter {
 
 
 
-
     public static boolean isMovieMatch(String search, String title) {
-
-
         search= search.toLowerCase();
         title= title.toLowerCase();
 
@@ -22,8 +19,6 @@ public class MovieSeachFilter {
                 break;
             }
         }
-
-
         return isMovieMatch;
 
     }
